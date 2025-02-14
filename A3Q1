@@ -1,0 +1,132 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for Single Linked List Node (for word reversal)
+typedef struct Node {
+    char data;
+    struct Node* next;
+} Node;
+
+// Structure for Doubly Linked List Node (for sentence handling)
+typedef struct DNode {
+    char word[50];
+    struct DNode* prev;
+    struct DNode* next;
+} DNode;
+
+// Function to create a new node for single linked list
+Node* createNode(char data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to reverse a single linked list
+Node* reverseList(Node* head) {
+    Node* prev = NULL;
+    Node* current = head;
+    Node* next = NULL;
+    
+    while (current != NULL) {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+    
+    return prev;
+}
+
+// Function to create a new doubly linked list node
+DNode* createDNode(char* word) {
+    DNode* newNode = (DNode*)malloc(sizeof(DNode));
+    strcpy(newNode->word, word);
+    newNode->prev = newNode->next = NULL;
+    return newNode;
+}
+
+// Function to insert at the end of the doubly linked list
+void insertDNode(DNode** head, char* word) {
+    DNode* newNode = createDNode(word);
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+    
+    DNode* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    
+    temp->next = newNode;
+    newNode->prev = temp;
+}
+
+// Function to reverse each word using single linked list
+void reverseWords(char* str) {
+    Node* head = NULL;
+    Node* tail = NULL;
+
+    for (int i = 0; i <= strlen(str); i++) {
+        if (str[i] != ' ' && str[i] != '\0') {
+            // Insert character into single linked list
+            Node* newNode = createNode(str[i]);
+            if (head == NULL) {
+                head = tail = newNode;
+            } else {
+                tail->next = newNode;
+                tail = newNode;
+            }
+        } else {
+            // Reverse and print the word
+            head = reverseList(head);
+            while (head) {
+                printf("%c", head->data);
+                Node* temp = head;
+                head = head->next;
+                free(temp);
+            }
+            if (str[i] == ' ') printf(" ");
+        }
+    }
+}
+
+// Function to process the sentence using a doubly linked list
+void processSentence(char* input) {
+    DNode* head = NULL;
+    char word[50];
+    int j = 0;
+
+    // Split input into words
+    for (int i = 0; i <= strlen(input); i++) {
+        if (input[i] != ' ' && input[i] != '\0') {
+            word[j++] = input[i];
+        } else {
+            word[j] = '\0';
+            insertDNode(&head, word);
+            j = 0;
+        }
+    }
+
+    // Print words in correct order but reversed individually
+    DNode* temp = head;
+    while (temp != NULL) {
+        reverseWords(temp->word);
+        if (temp->next != NULL) printf(" ");
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Driver function
+int main() {
+    char input[] = "YOJUS DELLIK HTANJAR NI HCRAM 3202";
+
+    printf("Original Input: %s\n", input);
+    printf("Decoded Output: ");
+    processSentence(input);
+
+    return 0;
+}
